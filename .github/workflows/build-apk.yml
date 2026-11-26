@@ -21,6 +21,13 @@ jobs:
       - name: Extract project-source.zip
         run: unzip -q project-source.zip -d .
 
+      - name: Temporary AGP 9 compatibility opt-out
+        run: |
+          cat << 'EOF' >> LearnVocabulary/gradle.properties
+          android.builtInKotlin=false
+          android.newDsl=false
+          EOF
+
       - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:
@@ -30,6 +37,10 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
+        working-directory: LearnVocabulary
+
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest
         working-directory: LearnVocabulary
 
       - name: Build Debug APK
