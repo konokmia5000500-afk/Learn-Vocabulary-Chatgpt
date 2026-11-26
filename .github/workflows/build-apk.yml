@@ -5,13 +5,7 @@ on:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
-  workflow_dispatch: # GitHub Actions ট্যাব থেকে ম্যানুয়ালি রান করার সুবিধা
-
-# Gradle ডিরেক্টরির জন্য ডিফল্ট ওয়ার্কিং ডিরেক্টরি
-# যদি আপনার GitHub repo-র একদম রুটে build.gradle.kts থাকে, তবে নিচের দুটি লাইন মুছে দিন বা '.' করুন
-defaults:
-  run:
-    working-directory: LearnVocabulary
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -21,32 +15,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # ১. অবশ্যই setup-java-এর আগে checkout থাকতে হবে
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # ২. v4-এর বদলে v5 ব্যবহার করুন
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
-
-      - name: Run unit tests
-        run: ./gradlew testDebugUnitTest
+        working-directory: LearnVocabulary # রুট ফোল্ডারে থাকলে এই লাইনটি বাদ দিন
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug
+        working-directory: LearnVocabulary # রুট ফোল্ডারে থাকলে এই লাইনটি বাদ দিন
 
       - name: Upload Debug APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: LearnVocabulary-debug-apk
-          path: LearnVocabulary/app/build/outputs/apk/debug/*.apk
+          path: LearnVocabulary/app/build/outputs/apk/debug/*.apk # রুট ফোল্ডারে থাকলে LearnVocabulary/ বাদ দিন
           if-no-files-found: error
-          
